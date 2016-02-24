@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">ImageGallery</string>
+
+
+    <string name="action_add_to_favourites">Add to favourites</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_exit">Exit</string>
+
+    <string name="setting_category_slideshow">Slide show parameters</string>
+    <string name="setting_category_image_gallery">Image gallery parameters</string>
+
+    <string name="setting_cb_slideshow_mode">slideshow_mode</string>
+    <string name="setting_cb_slideshow_mode_title">Auto slide show</string>
+    <string name="setting_cb_slideshow_mode_summary_off">Enable auto slideshow</string>
+    <string name="setting_cb_slideshow_mode_summary_on">Disable auto slideshow</string>
+
+    <string name="setting_et_slideshow_interval">slideshow_interval</string>
+    <string name="setting_et_slideshow_interval_title">Slideshow interval (sec)</string>
+    <string name="setting_et_slideshow_interval_summary">Currently:</string>
+    <string name="setting_et_slideshow_interval_default">1</string>
+
+    <string name="setting_cb_shuffle_mode">shuffle_mode</string>
+    <string name="setting_cb_shuffle_mode_title">Shuffle mode</string>
+    <string name="setting_cb_shuffle_mode_summary_off">Shuffle image collection</string>
+    <string name="setting_cb_shuffle_mode_summary_on">Images set order successively</string>
+
+    <string name="setting_lp_animation_list">animation_list</string>
+    <string name="setting_lp_animation_list_title">Animation effect</string>
+    <string name="setting_lp_animation_list_summary">Currently: </string>
+    <string name="setting_lp_animation_list_dialog_title">Choose animation from list:</string>
+
+    animation_list
+</resources>

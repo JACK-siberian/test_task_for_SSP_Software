@@ -106,7 +106,6 @@ public class ImageGalleryActivity extends AppCompatActivity implements SharedPre
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                //Log.e(TAG, "OnPageScrolled");
             }
 
             @Override

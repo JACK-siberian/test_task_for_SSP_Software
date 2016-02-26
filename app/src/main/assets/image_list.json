@@ -3,31 +3,26 @@
     {
       "id":1,
       "number":3,
-      "comment":"Comment for 3 image",
       "url":"https://pp.vk.me/c620717/v620717967/1aaf/C6egvx44OD8.jpg"
     },
     {
       "id":2,
       "number":2,
-      "comment":null,
       "url":"https://pp.vk.me/c619616/v619616799/118ea/GdVmPR_-jkc.jpg"
     },
     {
       "id":3,
       "number":5,
-      "comment":" This is my favourites photo!!",
       "url":"https://pp.vk.me/c619616/v619616799/10cd8/kYS8Nl3fpRY.jpg"
     },
     {
       "id":4,
       "number":4,
-      "comment":null,
       "url":"https://pp.vk.me/c620717/v620717967/1ac7/mljLS2bc174.jpg"
     },
     {
       "id":5,
       "number":1,
-      "comment":"Comment for 1 image",
       "url":"https://pp.vk.me/c619616/v619616799/10764/tLlnwR2bnuk.jpg"
     }
   ]

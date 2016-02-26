@@ -24,6 +24,13 @@
         android:title="@string/setting_category_image_gallery"
         >
         <CheckBoxPreference
+            android:key="@string/setting_cb_favourites_mode"
+            android:title="@string/setting_cb_favourites_mode_title"
+            android:summaryOn="@string/setting_cb_favourites_mode_summary_on"
+            android:summaryOff="@string/setting_cb_favourites_mode_summary_off"
+            android:defaultValue="false"
+            />
+        <CheckBoxPreference
             android:key="@string/setting_cb_shuffle_mode"
             android:title="@string/setting_cb_shuffle_mode_title"
             android:summaryOn="@string/setting_cb_shuffle_mode_summary_on"
@@ -33,11 +40,10 @@
         <ListPreference
             android:key="@string/setting_lp_animation_list"
             android:title="@string/setting_lp_animation_list_title"
-            android:defaultValue="1"
+            android:defaultValue="@string/setting_lp_animation_list_default"
             android:entries="@array/animation_array"
             android:entryValues="@array/animation_array"
             android:dialogTitle="@string/setting_lp_animation_list_dialog_title"
             />
     </PreferenceCategory>
-
 </PreferenceScreen>

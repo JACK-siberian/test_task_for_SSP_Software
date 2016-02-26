@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">ImageGallery</string>
 
+    <string name="dialog_favourites_title">Write your commentary:</string>
 
     <string name="action_add_to_favourites">Add to favourites</string>
     <string name="action_settings">Settings</string>
@@ -19,6 +20,11 @@
     <string name="setting_et_slideshow_interval_summary">Currently:</string>
     <string name="setting_et_slideshow_interval_default">1</string>
 
+    <string name="setting_cb_favourites_mode">favourites_mode</string>
+    <string name="setting_cb_favourites_mode_title">Favourites mode</string>
+    <string name="setting_cb_favourites_mode_summary_off">Show only favourites</string>
+    <string name="setting_cb_favourites_mode_summary_on">Show all images</string>
+
     <string name="setting_cb_shuffle_mode">shuffle_mode</string>
     <string name="setting_cb_shuffle_mode_title">Shuffle mode</string>
     <string name="setting_cb_shuffle_mode_summary_off">Shuffle image collection</string>
@@ -28,6 +34,5 @@
     <string name="setting_lp_animation_list_title">Animation effect</string>
     <string name="setting_lp_animation_list_summary">Currently: </string>
     <string name="setting_lp_animation_list_dialog_title">Choose animation from list:</string>
-
-    animation_list
+    <string name="setting_lp_animation_list_default">Default</string>
 </resources>

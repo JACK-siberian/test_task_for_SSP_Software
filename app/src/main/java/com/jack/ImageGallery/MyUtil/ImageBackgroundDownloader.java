@@ -13,12 +13,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class ImageBackgroundDownloader extends AsyncTask<String, Void, Bitmap> {
-    private final String TAG = ImageBackgroundDownloader.class.getSimpleName();
+    private final String TAG = "ImageDownloader";
 
-    ImageView image;
+    ImageView imageView;
 
-    public ImageBackgroundDownloader(ImageView image) {
-        this.image = image;
+    public ImageBackgroundDownloader(ImageView imageView) {
+        this.imageView = imageView;
     }
 
     @Override
@@ -39,8 +39,8 @@ public class ImageBackgroundDownloader extends AsyncTask<String, Void, Bitmap> {
             conn.disconnect();
 
             return bitmap;
-        } catch (Throwable ex){
-            ex.printStackTrace();
+        } catch (Throwable ex) {
+            Log.e(TAG, ex.getMessage());
             return null;
         }
     }
@@ -48,10 +48,12 @@ public class ImageBackgroundDownloader extends AsyncTask<String, Void, Bitmap> {
     @Override
     protected void onPostExecute(Bitmap result) {
         super.onPostExecute(result);
-        if ( result != null)
-            image.setImageBitmap(result);
-        else
+        if ( result != null) {
+            imageView.setImageBitmap(result);
+        }
+        else {
             //noinspection ResourceType
-            image.setImageResource( R.raw.error_image);
+            imageView.setImageResource(R.raw.error_image);
+        }
     }
 }

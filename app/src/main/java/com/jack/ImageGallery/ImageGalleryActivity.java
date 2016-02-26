@@ -1,5 +1,7 @@
 package com.jack.ImageGallery;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -8,24 +10,77 @@ import android.preference.PreferenceManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
+import com.jack.ImageGallery.Control.ImageGalleryController;
 import com.jack.ImageGallery.MyUtil.ImageGalleryPagerAdapter;
-import com.jack.ImageGallery.MyUtil.JsonHelper;
 import com.jack.ImageGallery.MyUtil.Util;
-import com.jack.ImageGallery.Objects.ImagesCollection;
+import com.jack.ImageGallery.PageTransformers.DepthPageTransformer;
+import com.jack.ImageGallery.PageTransformers.ZoomOutPageTransformer;
 
-public class ImageGalleryActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener{
+public class ImageGalleryActivity extends AppCompatActivity
+        implements
+                SharedPreferences.OnSharedPreferenceChangeListener,
+                ImageGalleryController.OnImageGalleryListener {
     private final String TAG = ImageGalleryActivity.class.getSimpleName();
 
     private ViewPager viewPager;
+    private ImageGalleryPagerAdapter adapter;
     private Handler handler = new Handler();
-    private ImagesCollection imagesCollection;
 
+    private ImageGalleryController imageGalleryController;
+
+    private boolean favouritesMode;
     private boolean shuffleMode;
     private int slideshowInterval;
+
+    @Override
+    public void updateAdapter() {
+        adapter.notifyDataSetChanged();
+    }
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        String setting_cb_shuffle_mode = getString(R.string.setting_cb_shuffle_mode);
+        String setting_et_slideshow_interval = getString(R.string.setting_et_slideshow_interval);
+        String setting_cb_favourites_mode = getString(R.string.setting_cb_favourites_mode);
+        String setting_lp_animation_list = getString(R.string.setting_lp_animation_list);
+
+        if ( key.equals(setting_cb_shuffle_mode)) {
+            shuffleMode = sharedPreferences.getBoolean(setting_cb_shuffle_mode, false);
+            setShuffleMode(shuffleMode);
+        }
+        else if ( key.equals(setting_et_slideshow_interval)) {
+            String intervalString = sharedPreferences.getString(
+                    setting_et_slideshow_interval,
+                    getString(R.string.setting_et_slideshow_interval_default));
+
+            // Can't unregisterOnSharedPreferenceChangeListener into onPause(), then :
+            if (Util.isDigit(intervalString)) {
+                slideshowInterval = Integer.valueOf(intervalString);
+            }
+        }
+        else if ( key.equals(setting_cb_favourites_mode)) {
+            if ( favouritesMode = sharedPreferences.getBoolean(setting_cb_favourites_mode, false)) {
+                adapter.updateAdapter(imageGalleryController.getImagesCollection().getArrayFavouritesImages());
+                adapter.notifyDataSetChanged();
+            }
+            else {
+                adapter.updateAdapter(imageGalleryController.getImagesCollection().getArrayImages());
+                adapter.notifyDataSetChanged();
+            }
+        }
+        else if ( key.equals(setting_lp_animation_list)) {
+            String animation = sharedPreferences.getString(
+                    setting_lp_animation_list,
+                    getString(R.string.setting_lp_animation_list_default));
+            setAnimation(animation);
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -37,6 +92,7 @@ public class ImageGalleryActivity extends AppCompatActivity implements SharedPre
     public boolean onOptionsItemSelected(MenuItem item) {
         switch ( item.getItemId()) {
             case R.id.action_add_to_favourites :
+                initDialogFavourites();
                 return true;
             case R.id.action_settings :
                 startActivity( new Intent( getApplicationContext(), SettingsActivity.class));
@@ -57,7 +113,16 @@ public class ImageGalleryActivity extends AppCompatActivity implements SharedPre
         SharedPreferences prefs =
                 PreferenceManager.getDefaultSharedPreferences( getApplicationContext());
         prefs.registerOnSharedPreferenceChangeListener(this);
-        shuffleMode = prefs.getBoolean(getString(R.string.setting_cb_shuffle_mode), false);
+        shuffleMode = prefs.getBoolean(
+                getString(R.string.setting_cb_shuffle_mode),
+                false);
+        favouritesMode = prefs.getBoolean(
+                getString(R.string.setting_cb_favourites_mode),
+                false);
+        String animation = prefs.getString(
+                getString(R.string.setting_lp_animation_list),
+                getString(R.string.setting_lp_animation_list_default)
+        );
         String intervalString = prefs.getString(
                 getString(R.string.setting_et_slideshow_interval),
                 getString(R.string.setting_et_slideshow_interval_default));
@@ -69,8 +134,22 @@ public class ImageGalleryActivity extends AppCompatActivity implements SharedPre
 
         initViews();
 
-        imagesCollection = new ImagesCollection(new JsonHelper( this,"image_list.json").getImageArray());
-        setAdapterWithShuffleMode(shuffleMode);
+        imageGalleryController = new ImageGalleryController(this);
+        if ( favouritesMode)
+            adapter = new ImageGalleryPagerAdapter(
+                    this,
+                    imageGalleryController.getImagesCollection().getArrayFavouritesImages(),
+                    shuffleMode
+             );
+        else
+            adapter = new ImageGalleryPagerAdapter(
+                    this,
+                    imageGalleryController.getImagesCollection().getArrayImages(),
+                    shuffleMode
+            );
+        viewPager.setAdapter(adapter);
+        setAnimation(animation);
+        setShuffleMode(shuffleMode);
     }
 
     @Override
@@ -103,21 +182,6 @@ public class ImageGalleryActivity extends AppCompatActivity implements SharedPre
 
     private void initViews() {
         viewPager = (ViewPager) findViewById(R.id.vpGallery);
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                Log.e(TAG, "OnPageSelected");
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                //Log.e(TAG, "OnPageScrollStateChanged");
-            }
-        });
     }
 
     private Runnable nextImageTask = new Runnable() {
@@ -128,8 +192,8 @@ public class ImageGalleryActivity extends AppCompatActivity implements SharedPre
         }
     };
     private void changeItemViewPager( ) {
-        if ( viewPager != null ) {
-            int count = viewPager.getAdapter().getCount();
+        if ( viewPager != null && adapter.getCount() > 1) {
+            int count = adapter.getCount();
             int position = viewPager.getCurrentItem();
             if ( position < count - 1) {
                 handler.postDelayed(nextImageTask, slideshowInterval*1000);
@@ -145,44 +209,66 @@ public class ImageGalleryActivity extends AppCompatActivity implements SharedPre
             }
         }
         else
-            Log.e(TAG, "changeItemViewPager" + " viewPager null");
+            Log.e(TAG, "changeItemViewPager:" + " viewPager null");
     }
-    public void startSlideshow() {
+    private void startSlideshow() {
         Toast.makeText(ImageGalleryActivity.this, "Slideshow started (drag mode disabled)", Toast.LENGTH_SHORT).show();
         viewPager.beginFakeDrag();
         changeItemViewPager();
     }
-    public void stopSlideshow() {
+    private void stopSlideshow() {
         if (viewPager.isFakeDragging())
             viewPager.endFakeDrag();
         handler.removeCallbacks(nextImageTask);
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        String setting_cb_shuffle_mode = getString(R.string.setting_cb_shuffle_mode);
-        String setting_et_slideshow_interval = getString(R.string.setting_et_slideshow_interval);
-
-        if ( key.equals(setting_cb_shuffle_mode)) {
-            shuffleMode = sharedPreferences.getBoolean(setting_cb_shuffle_mode, false);
-            setAdapterWithShuffleMode(shuffleMode);
-        }
-
-        if ( key.equals(setting_et_slideshow_interval)) {
-            String intervalString = sharedPreferences.getString(
-                    setting_et_slideshow_interval,
-                    getString(R.string.setting_et_slideshow_interval_default));
-
-            // Can't unregisterOnSharedPreferenceChangeListener into onPause(), then :
-            if (Util.isDigit(intervalString)) {
-                slideshowInterval = Integer.valueOf(intervalString);
-            }
-        }
+    private void setShuffleMode(boolean mode) {
+        adapter.setShuffleMode(mode);
+        adapter.notifyDataSetChanged();
     }
 
-    private void setAdapterWithShuffleMode( boolean mode) {
-        imagesCollection.setShuffleMode(mode);
-        ImageGalleryPagerAdapter adapter = new ImageGalleryPagerAdapter(this, imagesCollection.getArrayImages());
-        viewPager.setAdapter(adapter);
+    private void initDialogFavourites() {
+        int itemId = viewPager.getCurrentItem();
+        final long imageId = adapter.getImageId(itemId);
+        if ( imageId != -1) {
+            AlertDialog.Builder mDialogBuilder = new AlertDialog.Builder(this);
+            LayoutInflater li = LayoutInflater.from(this);
+            final View dialogView = li.inflate(R.layout.dialog_favourites, null);
+            mDialogBuilder.setView(dialogView);
+
+            mDialogBuilder
+                    .setCancelable(true)
+                    .setPositiveButton("OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    EditText userInput = (EditText) dialogView.findViewById(R.id.etComment);
+                                    imageGalleryController.addToFavourites(
+                                            (int) imageId,
+                                            userInput.getText().toString()
+                                    );
+                                }
+                            })
+                    .setNegativeButton("Отмена",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            }
+                    );
+            AlertDialog alertDialog = mDialogBuilder.create();
+            alertDialog.show();
+        }
+        else
+            Toast.makeText( ImageGalleryActivity.this, "Nothing to add", Toast.LENGTH_LONG).show();
+    }
+
+    private void setAnimation(String animation) {
+        String[] animationArray = getResources().getStringArray(R.array.animation_array);
+        if ( animation.equals(animationArray[1]))
+            viewPager.setPageTransformer(true, new DepthPageTransformer());
+        else if ( animation.equals(animationArray[2]))
+            viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
+        else
+            viewPager.setPageTransformer(true, null);
     }
 }

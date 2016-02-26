@@ -17,11 +17,9 @@ import java.util.ArrayList;
 
 public class JsonHelper {
     private final String TAG = "JsonHelper";
-    private Context context;
     private JSONObject jsonObject;
 
     public JsonHelper( Context context, String file) {
-        this.context = context;
         String json_source = loadAssetTextAsString(context, file);
         try {
             jsonObject = new JSONObject(json_source);
@@ -55,7 +53,6 @@ public class JsonHelper {
                     arrayImages.add(new Image(
                             arrayElement.getLong("id"),
                             arrayElement.getInt("number"),
-                            arrayElement.getString("comment"),
                             arrayElement.getString("url")
                     ));
                 }

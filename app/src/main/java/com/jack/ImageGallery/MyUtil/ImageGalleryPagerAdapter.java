@@ -20,10 +20,12 @@ public class ImageGalleryPagerAdapter extends PagerAdapter {
 
     private ArrayList<Image> images;
     private Context context;
+    private boolean shuffleMode;
 
     public ImageGalleryPagerAdapter(Context context, ArrayList<Image> images, boolean shuffleMode){
         this.context = context;
         this.images = images;
+        this.shuffleMode = shuffleMode;
         setShuffleMode(shuffleMode);
     }
 
@@ -36,6 +38,12 @@ public class ImageGalleryPagerAdapter extends PagerAdapter {
     }
     @Override
     public int getItemPosition(Object object) {
+        /*View v = (View) object;
+        long viewTag = (long)v.getTag();
+        for ( Image image : images)
+            if ( viewTag == image.getId())
+                return POSITION_UNCHANGED;*/
+
         return POSITION_NONE;
     }
     @Override
@@ -49,11 +57,13 @@ public class ImageGalleryPagerAdapter extends PagerAdapter {
             LayoutInflater inflater = LayoutInflater.from(context);
             View itemGallery = inflater.inflate(R.layout.item_image_gallery, null);
 
+
             ImageView imageView = (ImageView) itemGallery.findViewById(R.id.ivImage);
             imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
             LinearLayout frameComment = (LinearLayout) itemGallery.findViewById(R.id.frameComment);
 
             Image curImage = images.get(position);
+            itemGallery.setTag(curImage.getId());
             new ImageBackgroundDownloader(imageView)
                     .execute(curImage.getUrl());
 
@@ -86,6 +96,7 @@ public class ImageGalleryPagerAdapter extends PagerAdapter {
 
     public void updateAdapter(ArrayList<Image> images) {
         this.images = images;
+        setShuffleMode(shuffleMode);
     }
 
     public long getImageId(int position) {
